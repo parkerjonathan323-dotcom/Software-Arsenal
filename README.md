@@ -1,1 +1,49 @@
-# Software-Arsenal
+# Software Arsenal
+
+A mobile-first, multi-account software inventory with flip cards, AI-ready exports, and MCP tracking.
+
+## Features
+- 🃏 Flip cards — tap to see details, long-press for full score card
+- 🖥️📱 Stack switcher — toggle between PC Stack, Phone Stack, Accounts
+- 🤖 AI export — structured JSON for Kimi/ChatGPT/Claude
+- ⚙️ Hardware profile — attach your PC specs to the inventory
+- 🗑️ Edit, archive, delete from card back
+- 📤📥 Export / Import JSON
+
+## Deploy to GitHub Pages (Free)
+
+1. Go to [github.com](https://github.com) and sign in
+2. Click **New Repository**
+3. Name it `software-arsenal` (must match exactly)
+4. Make it **Public**
+5. Click **Create repository**
+6. On the repo page, click **Add file → Upload files**
+7. Drag both files into the upload area:
+   - `software_arsenal_v1.1.html`
+   - `manifest.json`
+8. Click **Commit changes**
+9. Go to **Settings → Pages** (left sidebar)
+10. Under **Source**, select **Deploy from a branch**
+11. Select **main** branch, **/ (root)** folder
+12. Click **Save**
+13. Wait 1–2 minutes, then visit:
+    ```
+    https://YOURUSERNAME.github.io/software-arsenal/software_arsenal_v1.1.html
+    ```
+
+## Add to Home Screen (Mobile)
+1. Open the GitHub Pages URL in Chrome/Safari
+2. Tap the **⋮ menu → Add to Home Screen** (Android)
+3. Or **Share → Add to Home Screen** (iOS)
+4. It runs like a native app with localStorage persistence
+
+## File Structure
+```
+software-arsenal/
+├── software_arsenal_v1.1.html   ← Main app
+├── manifest.json                ← PWA manifest
+└── README.md                    ← This file
+```
+
+## Data Format
+The app exports a JSON file with your full inventory. Drop this into any AI chat and it instantly knows your toolset, accounts, renewals, and MCP capabilities.
