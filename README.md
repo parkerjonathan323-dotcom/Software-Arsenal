@@ -28,7 +28,7 @@ A mobile-first, multi-account software inventory with flip cards, AI-ready expor
 12. Click **Save**
 13. Wait 1–2 minutes, then visit:
     ```
-    https://YOURUSERNAME.github.io/software-arsenal/software_arsenal_v1.1.html
+    https://YOURUSERNAME.github.io/software-arsenal/software_arsenal_v1.2.html
     ```
 
 ## Add to Home Screen (Mobile)
@@ -40,7 +40,7 @@ A mobile-first, multi-account software inventory with flip cards, AI-ready expor
 ## File Structure
 ```
 software-arsenal/
-├── software_arsenal_v1.1.html   ← Main app
+├── software_arsenal_v1.2.html   ← Main app
 ├── manifest.json                ← PWA manifest
 └── README.md                    ← This file
 ```
