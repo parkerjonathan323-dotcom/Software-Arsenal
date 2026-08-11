@@ -19,7 +19,7 @@ A mobile-first, multi-account software inventory with flip cards, AI-ready expor
 5. Click **Create repository**
 6. On the repo page, click **Add file → Upload files**
 7. Drag both files into the upload area:
-   - `software_arsenal_v1.1.html`
+   - `software_arsenal_v1.2.html`
    - `manifest.json`
 8. Click **Commit changes**
 9. Go to **Settings → Pages** (left sidebar)
