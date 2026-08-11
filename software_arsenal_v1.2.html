@@ -1,0 +1,1497 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="theme-color" content="#0f172a">
+<title>Software Arsenal v1.2</title>
+<link rel="manifest" href="manifest.json">
+<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E🧰%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --bg: #0b1120;
+    --surface: #151e32;
+    --surface-2: #1e293b;
+    --border: rgba(148,163,184,0.12);
+    --text: #f1f5f9;
+    --text-dim: #94a3b8;
+    --accent: #3b82f6;
+    --accent-2: #8b5cf6;
+    --success: #22c55e;
+    --warning: #f59e0b;
+    --danger: #ef4444;
+    --radius: 16px;
+    --radius-sm: 10px;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; -webkit-tap-highlight-color:transparent; }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    overflow-x: hidden;
+    padding-bottom: 100px;
+  }
+  .app-header {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: rgba(11,17,32,0.85);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid var(--border);
+    padding: 16px 16px 8px;
+  }
+  .brand { text-align: center; margin-bottom: 12px; }
+  .brand h1 { font-size: 1.3rem; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .brand p { font-size: 0.75rem; color: var(--text-dim); margin-top: 2px; }
+  .stack-bar {
+    display: flex;
+    gap: 8px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    scrollbar-width: none;
+    position: relative;
+    z-index: 100;
+  }
+  .stack-bar::-webkit-scrollbar { display: none; }
+  .stack-btn {
+    flex-shrink: 0;
+    padding: 8px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text-dim);
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+    white-space: nowrap;
+    position: relative;
+  }
+  .stack-btn:hover, .stack-btn.active {
+    background: var(--accent);
+    color: #fff;
+    border-color: var(--accent);
+  }
+  .stack-btn .chev { font-size: 0.65rem; opacity: 0.7; }
+  .stats-bar {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 8px;
+    padding: 12px 16px;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+  }
+  .stat { text-align: center; }
+  .stat .num { font-size: 1.3rem; font-weight: 700; color: var(--text); }
+  .stat .label { font-size: 0.6rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--text-dim); margin-top: 2px; }
+  .filters {
+    display: flex;
+    gap: 8px;
+    padding: 12px 16px;
+    overflow-x: auto;
+    scrollbar-width: none;
+    border-bottom: 1px solid var(--border);
+  }
+  .filters::-webkit-scrollbar { display: none; }
+  .chip {
+    flex-shrink: 0;
+    padding: 6px 14px;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    background: transparent;
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+  .chip:hover, .chip.active {
+    background: var(--surface-2);
+    color: var(--text);
+    border-color: rgba(148,163,184,0.3);
+  }
+  .actions {
+    display: flex;
+    gap: 10px;
+    padding: 12px 16px;
+    flex-wrap: wrap;
+  }
+  .btn {
+    padding: 8px 16px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.8rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    transition: all 0.2s;
+  }
+  .btn:hover { background: var(--surface-2); }
+  .btn-primary { background: var(--accent); border-color: var(--accent); }
+  .btn-primary:hover { background: #2563eb; }
+  .btn-danger { background: rgba(239,68,68,0.15); border-color: rgba(239,68,68,0.3); color: #f87171; }
+  .btn-danger:hover { background: rgba(239,68,68,0.25); }
+  .grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+    gap: 14px;
+    padding: 0 16px;
+    margin-top: 8px;
+  }
+  .card-wrap {
+    perspective: 1000px;
+    cursor: pointer;
+    position: relative;
+    touch-action: manipulation;
+  }
+  .card {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1 / 1.15;
+    transform-style: preserve-3d;
+    transition: transform 0.5s cubic-bezier(0.4,0,0.2,1);
+    border-radius: var(--radius);
+  }
+  .card.flipped { transform: rotateY(180deg); }
+  .card-face {
+    position: absolute;
+    inset: 0;
+    backface-visibility: hidden;
+    border-radius: var(--radius);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    overflow: hidden;
+  }
+  .card-back {
+    transform: rotateY(180deg);
+    background: var(--surface-2);
+    justify-content: flex-start;
+    align-items: stretch;
+    text-align: left;
+    gap: 6px;
+  }
+  .card-icon {
+    font-size: 2.5rem;
+    margin-bottom: 8px;
+    filter: drop-shadow(0 4px 12px rgba(0,0,0,0.3));
+  }
+  .card-name {
+    font-size: 0.95rem;
+    font-weight: 700;
+    text-align: center;
+    word-break: break-word;
+  }
+  .card-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+    margin-top: 8px;
+  }
+  .tag {
+    font-size: 0.6rem;
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+  .tag-core { background: rgba(34,197,94,0.15); color: #4ade80; }
+  .tag-utility { background: rgba(245,158,11,0.15); color: #fbbf24; }
+  .tag-infrastructure { background: rgba(139,92,246,0.15); color: #a78bfa; }
+  .tag-pc { background: rgba(59,130,246,0.15); color: #60a5fa; }
+  .tag-phone { background: rgba(236,72,153,0.15); color: #f472b6; }
+  .tag-both { background: rgba(148,163,184,0.15); color: #cbd5e1; }
+  .tag-local { background: rgba(16,185,129,0.15); color: #34d399; }
+  .tag-http { background: rgba(99,102,241,0.15); color: #818cf8; }
+  .tag-paid { background: rgba(239,68,68,0.15); color: #f87171; }
+  .tag-free { background: rgba(34,197,94,0.15); color: #4ade80; }
+  .tag-mcp { background: rgba(139,92,246,0.2); color: #c4b5fd; }
+  .status-dot {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: var(--success);
+    box-shadow: 0 0 8px var(--success);
+  }
+  .status-dot.archived { background: var(--text-dim); box-shadow: none; }
+  .back-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 0.7rem;
+    padding: 4px 0;
+    border-bottom: 1px solid rgba(148,163,184,0.08);
+  }
+  .back-row .k { color: var(--text-dim); }
+  .back-row .v { color: var(--text); font-weight: 600; }
+  .renewal-bar {
+    height: 4px;
+    background: rgba(148,163,184,0.1);
+    border-radius: 2px;
+    margin-top: 4px;
+    overflow: hidden;
+  }
+  .renewal-fill {
+    height: 100%;
+    background: linear-gradient(90deg, var(--accent), var(--accent-2));
+    border-radius: 2px;
+    transition: width 0.5s;
+  }
+  .card-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: auto;
+    padding-top: 8px;
+  }
+  .card-actions button {
+    flex: 1;
+    padding: 6px;
+    border-radius: 8px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.65rem;
+    cursor: pointer;
+  }
+  .drag-handle {
+    position: absolute;
+    bottom: 6px;
+    right: 6px;
+    width: 18px;
+    height: 18px;
+    cursor: grab;
+    opacity: 0.3;
+    font-size: 0.7rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .drag-handle:active { cursor: grabbing; }
+  .card-wrap.dragging { opacity: 0.5; }
+  .fab {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    border: none;
+    font-size: 1.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 8px 32px rgba(59,130,246,0.4);
+    cursor: pointer;
+    z-index: 90;
+    transition: transform 0.2s;
+  }
+  .fab:active { transform: scale(0.92); }
+  .dropdown-menu {
+    position: fixed;
+    z-index: 99999;
+    background: rgba(21, 30, 50, 0.92);
+    backdrop-filter: blur(20px) saturate(1.5);
+    -webkit-backdrop-filter: blur(20px) saturate(1.5);
+    border: 1px solid rgba(148,163,184,0.2);
+    border-radius: 14px;
+    box-shadow: 0 25px 50px -12px rgba(0,0,0,0.6);
+    min-width: 200px;
+    padding: 8px;
+    animation: dropIn 0.18s ease-out;
+    overflow: visible;
+  }
+  @keyframes dropIn {
+    from { opacity: 0; transform: translateY(-6px) scale(0.97); }
+    to { opacity: 1; transform: translateY(0) scale(1); }
+  }
+  .dropdown-item {
+    padding: 10px 14px;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: var(--text);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: background 0.15s;
+  }
+  .dropdown-item:hover { background: rgba(59,130,246,0.15); }
+  .dropdown-item .dd-meta {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    margin-left: auto;
+  }
+  .dropdown-divider {
+    height: 1px;
+    background: var(--border);
+    margin: 6px 0;
+  }
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    backdrop-filter: blur(8px);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.3s;
+  }
+  .modal-overlay.open {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .modal {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    width: 100%;
+    max-width: 480px;
+    max-height: 85vh;
+    overflow-y: auto;
+    padding: 24px;
+    transform: scale(0.95);
+    transition: transform 0.3s;
+    position: relative;
+  }
+  .modal-overlay.open .modal { transform: scale(1); }
+  .modal h2 {
+    font-size: 1.1rem;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .modal-close {
+    position: absolute;
+    top: 16px;
+    right: 16px;
+    width: 32px;
+    height: 32px;
+    border-radius: 50%;
+    border: 1px solid var(--border);
+    background: var(--surface-2);
+    color: var(--text);
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .form-group { margin-bottom: 14px; }
+  .form-group label {
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--text-dim);
+    margin-bottom: 6px;
+  }
+  .form-group input, .form-group select, .form-group textarea {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--bg);
+    color: var(--text);
+    font-size: 0.9rem;
+    font-family: inherit;
+  }
+  .form-group input:focus, .form-group select:focus, .form-group textarea:focus {
+    outline: none;
+    border-color: var(--accent);
+  }
+  .form-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+  .modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+  }
+  .modal-actions button { flex: 1; }
+  .score-section {
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    padding: 14px;
+    margin-bottom: 12px;
+    border: 1px solid var(--border);
+  }
+  .score-section h3 {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--text-dim);
+    margin-bottom: 10px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .score-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .score-item {
+    background: var(--surface);
+    padding: 10px;
+    border-radius: 10px;
+    font-size: 0.8rem;
+  }
+  .score-item .sk { color: var(--text-dim); font-size: 0.7rem; }
+  .score-item .sv { color: var(--text); font-weight: 600; margin-top: 2px; }
+  .ai-context {
+    background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(139,92,246,0.08));
+    border: 1px solid rgba(59,130,246,0.2);
+  }
+  .ai-context code {
+    background: rgba(0,0,0,0.3);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-size: 0.75rem;
+    color: #c4b5fd;
+  }
+  .mcp-list {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-top: 8px;
+  }
+  .mcp-chip {
+    background: rgba(139,92,246,0.15);
+    color: #c4b5fd;
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+  }
+  .toast {
+    position: fixed;
+    bottom: 100px;
+    left: 50%;
+    transform: translateX(-50%) translateY(20px);
+    background: var(--surface-2);
+    border: 1px solid var(--border);
+    padding: 12px 20px;
+    border-radius: var(--radius-sm);
+    font-size: 0.85rem;
+    z-index: 300;
+    opacity: 0;
+    pointer-events: none;
+    transition: all 0.3s;
+    white-space: nowrap;
+  }
+  .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+  .empty {
+    text-align: center;
+    padding: 60px 20px;
+    color: var(--text-dim);
+  }
+  .empty-icon { font-size: 3rem; margin-bottom: 12px; opacity: 0.5; }
+  @media (max-width: 400px) {
+    .grid { grid-template-columns: repeat(2, 1fr); }
+    .stats-bar { grid-template-columns: repeat(3, 1fr); gap: 4px; }
+    .stat:nth-child(4), .stat:nth-child(5) { display: none; }
+  }
+  @media (min-width: 768px) {
+    .grid { grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); }
+  }
+
+  .search-bar {
+    padding: 8px 16px 4px;
+    position: sticky;
+    top: 108px;
+    z-index: 99;
+    background: var(--bg);
+    border-bottom: 1px solid var(--border);
+  }
+  .search-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+  .search-icon {
+    position: absolute;
+    left: 12px;
+    font-size: 0.9rem;
+    opacity: 0.5;
+    pointer-events: none;
+  }
+  .search-input {
+    width: 100%;
+    padding: 10px 36px 10px 38px;
+    border-radius: var(--radius-sm);
+    border: 1px solid var(--border);
+    background: var(--surface);
+    color: var(--text);
+    font-size: 0.9rem;
+    font-family: inherit;
+    transition: all 0.2s;
+  }
+  .search-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background: var(--surface-2);
+  }
+  .search-input::placeholder {
+    color: var(--text-dim);
+    opacity: 0.6;
+  }
+  .search-clear {
+    position: absolute;
+    right: 8px;
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    border: none;
+    background: var(--surface-2);
+    color: var(--text-dim);
+    font-size: 0.75rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.2s;
+  }
+  .search-clear.visible {
+    opacity: 1;
+    pointer-events: all;
+  }
+  .search-clear:hover {
+    background: var(--border);
+    color: var(--text);
+  }
+  .search-count {
+    font-size: 0.7rem;
+    color: var(--text-dim);
+    padding: 4px 16px 0;
+    text-align: right;
+  }
+  .highlight {
+    background: rgba(59,130,246,0.3);
+    border-radius: 2px;
+    padding: 0 2px;
+  }
+
+</style>
+</head>
+<body>
+
+<div class="app-header">
+  <div class="brand">
+    <h1>🧰 Software Arsenal</h1>
+    <p>Multi-account · Multi-platform · AI-ready</p>
+  </div>
+  <div class="stack-bar" id="stackBar">
+    <button class="stack-btn active" data-filter="all">🔥 All</button>
+    <button class="stack-btn" data-filter="pc">🖥️ PC Stack</button>
+    <button class="stack-btn" data-filter="phone">📱 Phone Stack</button>
+    <button class="stack-btn" data-filter="accounts" id="accountsBtn">👤 Accounts <span class="chev">▼</span></button>
+    <button class="stack-btn" data-filter="decks" id="decksBtn">🎯 Decks <span class="chev">▼</span></button>
+    <button class="stack-btn" data-filter="hardware" id="hardwareBtn">⚙️ Hardware</button>
+  </div>
+</div>
+
+<div class="stats-bar" id="statsBar">
+  <div class="stat"><div class="num" id="statTools">0</div><div class="label">Tools</div></div>
+  <div class="stat"><div class="num" id="statCore">0</div><div class="label">Core</div></div>
+  <div class="stat"><div class="num" id="statPaid">0</div><div class="label">Paid</div></div>
+  <div class="stat"><div class="num" id="statRenewals">0</div><div class="label">Renewals</div></div>
+  <div class="stat"><div class="num" id="statMCP">0</div><div class="label">MCP</div></div>
+</div>
+
+
+<div class="search-bar" id="searchBar">
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" class="search-input" id="searchInput" placeholder="Search tools, use cases, accounts..." autocomplete="off">
+    <button class="search-clear" id="searchClear">✕</button>
+  </div>
+  <div class="search-count" id="searchCount"></div>
+</div>
+
+<div class="filters" id="filters">
+  <button class="chip active" data-tag="all">All</button>
+  <button class="chip" data-tag="core">Core</button>
+  <button class="chip" data-tag="utility">Utility</button>
+  <button class="chip" data-tag="infrastructure">Infra</button>
+  <button class="chip" data-tag="pc">PC</button>
+  <button class="chip" data-tag="phone">Phone</button>
+  <button class="chip" data-tag="both">Both</button>
+  <button class="chip" data-tag="local">Local</button>
+  <button class="chip" data-tag="http">Cloud</button>
+  <button class="chip" data-tag="hasMCP">Has MCP</button>
+</div>
+
+<div class="actions">
+  <button class="btn" onclick="exportJSON()">📤 Export JSON</button>
+  <button class="btn" onclick="document.getElementById('importFile').click()">📥 Import JSON</button>
+  <input type="file" id="importFile" accept=".json" style="display:none" onchange="importJSON(this)">
+  <button class="btn btn-danger" onclick="resetData()">🔄 Reset</button>
+</div>
+
+<div class="grid" id="grid"></div>
+
+<div class="empty" id="empty" style="display:none">
+  <div class="empty-icon">📭</div>
+  <p id="emptyText">No tools match this filter.</p>
+  <button class="btn btn-primary" style="margin-top:16px;" onclick="resetData()">Load Default Tools</button>
+</div>
+
+<button class="fab" onclick="openAddModal()">+</button>
+
+<div class="toast" id="toast"></div>
+
+<!-- Hardware Modal -->
+<div class="modal-overlay" id="hardwareModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('hardwareModal')">✕</button>
+    <h2>⚙️ Hardware Profile</h2>
+    <div class="form-row">
+      <div class="form-group"><label>Device Name</label><input id="hwName" placeholder="e.g. aspire"></div>
+      <div class="form-group"><label>OS</label><input id="hwOS" placeholder="e.g. windows 10"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>CPU</label><input id="hwCPU" placeholder="e.g. intel core i7-3632q"></div>
+      <div class="form-group"><label>RAM (GB)</label><input id="hwRAM" placeholder="e.g. 8"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>GPU</label><input id="hwGPU" placeholder="e.g. intel hd graphics 4000"></div>
+      <div class="form-group"><label>Storage</label><input id="hwStorage" placeholder="e.g. 1 tb hdd"></div>
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveHardware()">Save Profile</button>
+      <button class="btn" onclick="closeModal('hardwareModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Tool Modal -->
+<div class="modal-overlay" id="toolModal">
+  <div class="modal">
+    <button class="modal-close" onclick="closeModal('toolModal')">✕</button>
+    <h2 id="toolModalTitle">🛠️ Add Tool</h2>
+    <input type="hidden" id="editId">
+    <div class="form-row">
+      <div class="form-group"><label>Name</label><input id="tName" placeholder="e.g. Figma"></div>
+      <div class="form-group"><label>Icon (emoji)</label><input id="tIcon" placeholder="🎯"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Stack</label>
+        <select id="tStack"><option value="core">Core</option><option value="utility">Utility</option><option value="infrastructure">Infrastructure</option></select>
+      </div>
+      <div class="form-group"><label>Platform</label>
+        <select id="tPlatform"><option value="pc">PC</option><option value="phone">Phone</option><option value="both">Both</option></select>
+      </div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Network</label>
+        <select id="tNetwork"><option value="local">Local</option><option value="http">HTTP/Cloud</option></select>
+      </div>
+      <div class="form-group"><label>Account</label><input id="tAccount" placeholder="email"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>License</label>
+        <select id="tLicense"><option value="free">Free</option><option value="paid">Paid</option></select>
+      </div>
+      <div class="form-group"><label>Cost</label><input id="tCost" placeholder="e.g. $15/mo"></div>
+    </div>
+    <div class="form-row">
+      <div class="form-group"><label>Renewal Date</label><input id="tRenewal" type="date"></div>
+      <div class="form-group"><label>Seats</label><input id="tSeats" type="number" min="1" value="1"></div>
+    </div>
+    <div class="form-group"><label>Use Case</label><input id="tUseCase" placeholder="e.g. UI/UX design"></div>
+    <div class="form-group"><label>Notes</label><textarea id="tNotes" rows="2" placeholder="Any extra details..."></textarea></div>
+    <div class="form-group">
+      <label style="display:flex;align-items:center;gap:8px;cursor:pointer;">
+        <input type="checkbox" id="tHasMCP" style="width:auto;"> Has MCP Extensions
+      </label>
+    </div>
+    <div class="form-group" id="mcpGroup" style="display:none;">
+      <label>MCP Extensions (comma separated)</label>
+      <input id="tMCP" placeholder="filesystem, web-search, code-search">
+    </div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="saveTool()">Save Tool</button>
+      <button class="btn" onclick="closeModal('toolModal')">Cancel</button>
+    </div>
+  </div>
+</div>
+
+<!-- Score Card Modal -->
+<div class="modal-overlay" id="scoreModal">
+  <div class="modal" style="max-width:520px;">
+    <button class="modal-close" onclick="closeModal('scoreModal')">✕</button>
+    <h2 id="scoreTitle">🃏 Score Card</h2>
+    <div id="scoreContent"></div>
+    <div class="modal-actions">
+      <button class="btn btn-primary" onclick="exportSingleCard()">📤 Export Card</button>
+      <button class="btn" onclick="closeModal('scoreModal')">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+
+const DEFAULT_DATA = {
+  version: "1.2",
+  owner_accounts: ["Parkerjonathan323@gmail.com", "CurrentDirection.John@gmail.com"],
+  tools: [
+    { id:"sw-des-adcc-parker-both", name:"Adobe CC", icon:"🎨", iconColor:"#ff0000", stack:"core", platform:"both", network:"http", account:"Parkerjonathan323@gmail.com", license:"paid", cost:"$55/mo", renewal:"2027-03-01", seats:2, useCase:"Design & video", notes:"All Apps plan", status:"active", hasMCP:false, mcpExtensions:[], dateAdded:"2026-08-09" },
+    { id:"sw-prd-nton-john-both", name:"Notion", icon:"📝", iconColor:"#000000", stack:"core", platform:"both", network:"http", account:"CurrentDirection.John@gmail.com", license:"paid", cost:"$10/mo", renewal:"2026-10-01", seats:1, useCase:"Knowledge base", notes:"Team wiki", status:"active", hasMCP:false, mcpExtensions:[], dateAdded:"2026-08-09" },
+    { id:"sw-sec-1pwd-parker-both", name:"1Password", icon:"🔐", iconColor:"#3b82f6", stack:"core", platform:"both", network:"http", account:"Parkerjonathan323@gmail.com", license:"paid", cost:"$36/yr", renewal:"2026-09-30", seats:1, useCase:"Password management", notes:"Family vault", status:"active", hasMCP:false, mcpExtensions:[], dateAdded:"2026-08-09" },
+    { id:"sw-dev-vscd-parker-pc", name:"VS Code", icon:"💻", iconColor:"#007acc", stack:"core", platform:"pc", network:"local", account:"Parkerjonathan323@gmail.com", license:"free", cost:"$0", renewal:"", seats:1, useCase:"Code editing & MCP dev", notes:"Primary IDE", status:"active", hasMCP:true, mcpExtensions:["filesystem","web-search"], dateAdded:"2026-08-09" },
+    { id:"sw-mus-spfy-parker-phone", name:"Spotify", icon:"🎵", iconColor:"#1db954", stack:"core", platform:"phone", network:"http", account:"Parkerjonathan323@gmail.com", license:"paid", cost:"$11/mo", renewal:"2026-09-15", seats:1, useCase:"Music streaming", notes:"Premium", status:"active", hasMCP:false, mcpExtensions:[], dateAdded:"2026-08-09" },
+    { id:"sw-mus-spfy-john-pc", name:"Spotify", icon:"🎵", iconColor:"#1db954", stack:"utility", platform:"pc", network:"http", account:"CurrentDirection.John@gmail.com", license:"free", cost:"$0", renewal:"", seats:1, useCase:"Music streaming", notes:"Free tier", status:"active", hasMCP:false, mcpExtensions:[], dateAdded:"2026-08-09" },
+    { id:"sw-dev-dock-parker-pc", name:"Docker Desktop", icon:"🐳", iconColor:"#2496ed", stack:"infrastructure", platform:"pc", network:"local", account:"Parkerjonathan323@gmail.com", license:"free", cost:"$0", renewal:"", seats:1, useCase:"Containerization", notes:"Dev containers", status:"active", hasMCP:false, mcpExtensions:[], dateAdded:"2026-08-09" },
+    { id:"sw-des-figm-john-both", name:"Figma", icon:"🎯", iconColor:"#f24e1e", stack:"core", platform:"both", network:"http", account:"CurrentDirection.John@gmail.com", license:"paid", cost:"$15/mo", renewal:"2026-11-01", seats:1, useCase:"UI/UX design", notes:"Professional plan", status:"active", hasMCP:false, mcpExtensions:[], dateAdded:"2026-08-09" },
+    { id:"sw-dev-ghub-parker-both", name:"GitHub", icon:"🐙", iconColor:"#333333", stack:"core", platform:"both", network:"http", account:"Parkerjonathan323@gmail.com", license:"free", cost:"$0", renewal:"", seats:1, useCase:"Code hosting", notes:"Public repos", status:"active", hasMCP:true, mcpExtensions:["code-search"], dateAdded:"2026-08-09" },
+    { id:"sw-ai-llm-parker-pc", name:"Local LLM (Ollama)", icon:"🧠", iconColor:"#8b5cf6", stack:"infrastructure", platform:"pc", network:"local", account:"Parkerjonathan323@gmail.com", license:"free", cost:"$0", renewal:"", seats:1, useCase:"AI inference", notes:"Llama 3.1, Mistral", status:"active", hasMCP:true, mcpExtensions:["local-model","rag"], dateAdded:"2026-08-09" }
+  ],
+  hardware: { name:"aspire", os:"windows 10", cpu:"intel core i7-3632q", ram:"8", gpu:"intel hd graphics 4000", storage:"1 tb hdd" }
+};
+
+let data = null;
+let currentFilter = 'all';
+let currentTag = 'all';
+let currentAccount = null;
+let currentDeck = null;
+let longPressTimer = null;
+let currentScoreTool = null;
+let dragSrc = null;
+let activeDropdown = null;
+let currentSearch = '';
+
+function init() {
+  try {
+    const saved = localStorage.getItem('softwareArsenal');
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        // Only use saved data if it has actual tools
+        if (parsed && Array.isArray(parsed.tools) && parsed.tools.length > 0) {
+          data = parsed;
+          console.log('Loaded from localStorage:', data.tools.length, 'tools');
+        } else {
+          console.log('localStorage empty or no tools, using defaults');
+          data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+        }
+      } catch(e) {
+        console.error('Failed to parse localStorage, using defaults:', e);
+        data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+      }
+    } else {
+      console.log('No localStorage, using defaults');
+      data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+    }
+
+    // Safety: ensure data structure exists
+    if (!data.tools) data.tools = [];
+    if (!data.hardware) data.hardware = {};
+    if (!data.owner_accounts) data.owner_accounts = [];
+
+    render();
+    setupDropdowns();
+    setupFilters();
+    setupStackBar();
+
+    setupSearch();
+
+    var mcpCheckbox = document.getElementById('tHasMCP');
+    if (mcpCheckbox) {
+      mcpCheckbox.addEventListener('change', function(e) {
+        var g = document.getElementById('mcpGroup');
+        if (g) g.style.display = e.target.checked ? 'block' : 'none';
+      });
+    }
+
+    // Close modals on backdrop click
+    document.querySelectorAll('.modal-overlay').forEach(function(overlay) {
+      overlay.addEventListener('click', function(e) {
+        if (e.target === overlay) overlay.classList.remove('open');
+      });
+    });
+
+    console.log('Software Arsenal initialized. Tools:', data.tools.length);
+  } catch(err) {
+    console.error('Fatal init error:', err);
+    alert('Something went wrong loading the app. Try clicking "Reset" below.');
+  }
+}
+
+function persist() {
+  try {
+    localStorage.setItem('softwareArsenal', JSON.stringify(data));
+  } catch(e) {
+    console.error('Failed to save:', e);
+  }
+}
+
+function resetData() {
+  if (!confirm('Reset to default tools and hardware?')) return;
+  data = JSON.parse(JSON.stringify(DEFAULT_DATA));
+  persist();
+  currentFilter = 'all';
+  currentTag = 'all';
+  currentAccount = null;
+  currentDeck = null;
+  document.querySelectorAll('.stack-btn').forEach(function(b) { b.classList.remove('active'); });
+  var allBtn = document.querySelector('.stack-btn[data-filter="all"]');
+  if (allBtn) allBtn.classList.add('active');
+  document.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
+  var allChip = document.querySelector('.chip[data-tag="all"]');
+  if (allChip) allChip.classList.add('active');
+  render();
+  toast('Defaults restored!');
+}
+
+/* DROPDOWNS */
+function setupDropdowns() {
+  var accBtn = document.getElementById('accountsBtn');
+  var deckBtn = document.getElementById('decksBtn');
+  if (accBtn) {
+    accBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var accounts = [];
+      var seen = {};
+      data.tools.forEach(function(t) {
+        if (t.account && !seen[t.account]) {
+          seen[t.account] = true;
+          accounts.push(t.account);
+        }
+      });
+      var items = accounts.map(function(acc) {
+        var count = 0;
+        data.tools.forEach(function(t) { if (t.account === acc) count++; });
+        return { label: acc, meta: count + ' tools', action: function() {
+          currentAccount = acc; currentDeck = null; currentFilter = 'account'; render();
+        }};
+      });
+      items.push({ divider: true });
+      items.push({ label: 'Clear filter', action: function() {
+        currentAccount = null; currentFilter = 'all'; render();
+      }});
+      showDropdown(e.currentTarget, items);
+    });
+  }
+  if (deckBtn) {
+    deckBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      var decks = [];
+      var seen = {};
+      data.tools.forEach(function(t) {
+        if (t.stack && !seen[t.stack]) {
+          seen[t.stack] = true;
+          decks.push(t.stack);
+        }
+      });
+      var items = decks.map(function(deck) {
+        var count = 0;
+        data.tools.forEach(function(t) { if (t.stack === deck) count++; });
+        return {
+          label: deck.charAt(0).toUpperCase() + deck.slice(1),
+          meta: count + ' tools',
+          action: function() { currentDeck = deck; currentAccount = null; currentFilter = 'deck'; render(); }
+        };
+      });
+      items.push({ divider: true });
+      items.push({ label: 'Clear filter', action: function() { currentDeck = null; currentFilter = 'all'; render(); }});
+      showDropdown(e.currentTarget, items);
+    });
+  }
+  document.addEventListener('click', function() { closeDropdowns(); });
+}
+
+function showDropdown(anchor, items) {
+  closeDropdowns();
+  var rect = anchor.getBoundingClientRect();
+  var dd = document.createElement('div');
+  dd.className = 'dropdown-menu';
+  dd.style.top = (rect.bottom + 6) + 'px';
+  dd.style.left = Math.min(rect.left, window.innerWidth - 220) + 'px';
+
+  items.forEach(function(item) {
+    if (item.divider) {
+      var div = document.createElement('div');
+      div.className = 'dropdown-divider';
+      dd.appendChild(div);
+    } else {
+      var el = document.createElement('div');
+      el.className = 'dropdown-item';
+      el.innerHTML = '<span>' + item.label + '</span>' + (item.meta ? '<span class="dd-meta">' + item.meta + '</span>' : '');
+      el.addEventListener('click', function(e) { e.stopPropagation(); item.action(); closeDropdowns(); });
+      dd.appendChild(el);
+    }
+  });
+
+  document.body.appendChild(dd);
+  activeDropdown = dd;
+
+  var ddRect = dd.getBoundingClientRect();
+  if (ddRect.right > window.innerWidth - 10) dd.style.left = (window.innerWidth - ddRect.width - 10) + 'px';
+  if (ddRect.bottom > window.innerHeight - 10) dd.style.top = (rect.top - ddRect.height - 6) + 'px';
+}
+
+function closeDropdowns() {
+  if (activeDropdown) { activeDropdown.remove(); activeDropdown = null; }
+}
+
+function getFilteredTools() {
+  var tools = data.tools.filter(function(t) { return t.status !== 'archived'; });
+  if (currentFilter === 'pc') tools = tools.filter(function(t) { return t.platform === 'pc' || t.platform === 'both'; });
+  if (currentFilter === 'phone') tools = tools.filter(function(t) { return t.platform === 'phone' || t.platform === 'both'; });
+  if (currentFilter === 'account' && currentAccount) tools = tools.filter(function(t) { return t.account === currentAccount; });
+  if (currentFilter === 'deck' && currentDeck) tools = tools.filter(function(t) { return t.stack === currentDeck; });
+  if (currentTag !== 'all') {
+    if (currentTag === 'hasMCP') tools = tools.filter(function(t) { return t.hasMCP; });
+    else tools = tools.filter(function(t) { return t.stack === currentTag || t.platform === currentTag || t.network === currentTag; });
+  }
+  if (currentSearch) {
+    var q = currentSearch;
+    tools = tools.filter(function(t) {
+      return (t.name && t.name.toLowerCase().indexOf(q) !== -1) ||
+             (t.useCase && t.useCase.toLowerCase().indexOf(q) !== -1) ||
+             (t.account && t.account.toLowerCase().indexOf(q) !== -1) ||
+             (t.notes && t.notes.toLowerCase().indexOf(q) !== -1) ||
+             (t.stack && t.stack.toLowerCase().indexOf(q) !== -1) ||
+             (t.platform && t.platform.toLowerCase().indexOf(q) !== -1) ||
+             (t.network && t.network.toLowerCase().indexOf(q) !== -1);
+    });
+  }
+  return tools;
+}
+
+function render() {
+  try {
+    var tools = getFilteredTools();
+    var grid = document.getElementById('grid');
+    var empty = document.getElementById('empty');
+    if (!grid || !empty) return;
+
+    document.getElementById('statTools').textContent = tools.length;
+    var coreCount = 0, paidCount = 0, mcpCount = 0;
+    tools.forEach(function(t) {
+      if (t.stack === 'core') coreCount++;
+      if (t.license === 'paid') paidCount++;
+      if (t.hasMCP) mcpCount++;
+    });
+    document.getElementById('statCore').textContent = coreCount;
+    document.getElementById('statPaid').textContent = paidCount;
+    var now = new Date();
+    var thirtyDays = new Date(now.getTime() + 30*24*60*60*1000);
+    var renewalCount = 0;
+    tools.forEach(function(t) {
+      if (t.renewal) {
+        var d = new Date(t.renewal);
+        if (d >= now && d <= thirtyDays) renewalCount++;
+      }
+    });
+    document.getElementById('statRenewals').textContent = renewalCount;
+    document.getElementById('statMCP').textContent = mcpCount;
+
+    var countEl = document.getElementById('searchCount');
+    if (countEl) {
+      if (currentSearch) {
+        countEl.textContent = tools.length + ' result' + (tools.length === 1 ? '' : 's') + ' for "' + currentSearch + '"';
+      } else {
+        countEl.textContent = '';
+      }
+    }
+
+    if (tools.length === 0) {
+      grid.innerHTML = '';
+      var emptyText = document.getElementById('emptyText');
+      if (emptyText) emptyText.textContent = currentSearch ? 'No tools match "' + currentSearch + '"' : 'No tools match this filter.';
+      empty.style.display = 'block';
+      return;
+    }
+    empty.style.display = 'none';
+
+    var html = '';
+    tools.forEach(function(tool) {
+      var renewalPct = getRenewalPct(tool.renewal);
+      var mcpHtml = '';
+      if (tool.hasMCP && tool.mcpExtensions && tool.mcpExtensions.length) {
+        mcpHtml = '<div class="mcp-list">';
+        tool.mcpExtensions.forEach(function(m) {
+          mcpHtml += '<span class="mcp-chip">' + m + '</span>';
+        });
+        mcpHtml += '</div>';
+      }
+      html += '<div class="card-wrap" data-id="' + tool.id + '" draggable="true">' +
+        '<div class="card" id="card-' + tool.id + '">' +
+          '<div class="card-face card-front" ontouchstart="handleTouchStart(event,'' + tool.id + '')" ontouchend="handleTouchEnd(event)" onmousedown="handleMouseDown(event,'' + tool.id + '')" onmouseup="handleMouseUp(event)">' +
+            '<div class="status-dot ' + (tool.status === 'archived' ? 'archived' : '') + '"></div>' +
+            '<div class="card-icon" style="color:' + (tool.iconColor || 'inherit') + '">' + tool.icon + '</div>' +
+            '<div class="card-name">' + escapeHtml(tool.name) + '</div>' +
+            '<div class="card-tags">' +
+              '<span class="tag tag-' + tool.stack + '">' + tool.stack + '</span>' +
+              '<span class="tag tag-' + tool.platform + '">' + tool.platform + '</span>' +
+              '<span class="tag tag-' + tool.network + '">' + tool.network + '</span>' +
+              (tool.license === 'paid' ? '<span class="tag tag-paid">paid</span>' : '<span class="tag tag-free">free</span>') +
+              (tool.hasMCP ? '<span class="tag tag-mcp">mcp</span>' : '') +
+            '</div>' +
+            '<div class="drag-handle">⋮⋮</div>' +
+          '</div>' +
+          '<div class="card-face card-back">' +
+            '<div class="back-row"><span class="k">Account</span><span class="v">' + escapeHtml(tool.account || '-') + '</span></div>' +
+            '<div class="back-row"><span class="k">Use Case</span><span class="v">' + escapeHtml(tool.useCase || '-') + '</span></div>' +
+            '<div class="back-row"><span class="k">Cost</span><span class="v">' + escapeHtml(tool.cost || '-') + '</span></div>' +
+            '<div class="back-row"><span class="k">Renewal</span><span class="v">' + (tool.renewal || 'N/A') + '</span></div>' +
+            '<div class="back-row"><span class="k">Seats</span><span class="v">' + tool.seats + '</span></div>' +
+            '<div class="back-row"><span class="k">Network</span><span class="v">' + tool.network + '</span></div>' +
+            (tool.renewal ? '<div class="renewal-bar"><div class="renewal-fill" style="width:' + renewalPct + '%"></div></div>' : '') +
+            mcpHtml +
+            '<div class="card-actions">' +
+              '<button onclick="event.stopPropagation(); editTool('' + tool.id + '')">Edit</button>' +
+              '<button onclick="event.stopPropagation(); archiveTool('' + tool.id + '')">Archive</button>' +
+              '<button onclick="event.stopPropagation(); deleteTool('' + tool.id + '')">Delete</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
+    });
+    grid.innerHTML = html;
+
+    // Event bindings
+    document.querySelectorAll('.card-wrap').forEach(function(el) {
+      el.addEventListener('dragstart', handleDragStart);
+      el.addEventListener('dragover', handleDragOver);
+      el.addEventListener('drop', handleDrop);
+      el.addEventListener('dragend', handleDragEnd);
+    });
+
+    document.querySelectorAll('.card-front').forEach(function(el) {
+      el.addEventListener('click', function(e) {
+        if (!el.dataset.longPressed) {
+          var card = el.closest('.card');
+          if (card) card.classList.toggle('flipped');
+        }
+        delete el.dataset.longPressed;
+      });
+    });
+  } catch(err) {
+    console.error('Render error:', err);
+  }
+}
+
+function escapeHtml(text) {
+  if (!text) return '';
+  var div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function getRenewalPct(dateStr) {
+  if (!dateStr) return 0;
+  var renewal = new Date(dateStr);
+  var now = new Date();
+  var start = new Date(now.getFullYear(), 0, 1);
+  var total = renewal - start;
+  var elapsed = now - start;
+  if (total <= 0) return 100;
+  return Math.min(100, Math.max(0, (elapsed / total) * 100));
+}
+
+/* Long press for Score Card */
+function handleTouchStart(e, id) {
+  var el = e.currentTarget;
+  el.dataset.longPressed = '';
+  longPressTimer = setTimeout(function() {
+    el.dataset.longPressed = 'true';
+    openScoreCard(id);
+  }, 600);
+}
+function handleTouchEnd(e) {
+  if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+}
+function handleMouseDown(e, id) {
+  if (e.button !== 0) return;
+  var el = e.currentTarget;
+  el.dataset.longPressed = '';
+  longPressTimer = setTimeout(function() {
+    el.dataset.longPressed = 'true';
+    openScoreCard(id);
+  }, 600);
+}
+function handleMouseUp(e) {
+  if (longPressTimer) { clearTimeout(longPressTimer); longPressTimer = null; }
+}
+
+function openScoreCard(id) {
+  var tool = null;
+  data.tools.forEach(function(t) { if (t.id === id) tool = t; });
+  if (!tool) return;
+  currentScoreTool = tool;
+  var hw = data.hardware || {};
+  var renewalDays = tool.renewal ? Math.ceil((new Date(tool.renewal) - new Date()) / (1000*60*60*24)) : null;
+
+  document.getElementById('scoreTitle').innerHTML = tool.icon + ' Score Card: ' + escapeHtml(tool.name);
+  var content = '';
+  content += '<div class="score-section"><h3>⚡ Quick Facts</h3><div class="score-grid">';
+  content += '<div class="score-item"><div class="sk">Stack</div><div class="sv">' + tool.stack + '</div></div>';
+  content += '<div class="score-item"><div class="sk">Platform</div><div class="sv">' + tool.platform + '</div></div>';
+  content += '<div class="score-item"><div class="sk">License</div><div class="sv">' + tool.license + '</div></div>';
+  content += '<div class="score-item"><div class="sk">Cost</div><div class="sv">' + escapeHtml(tool.cost) + '</div></div>';
+  content += '<div class="score-item"><div class="sk">Network</div><div class="sv">' + tool.network + '</div></div>';
+  content += '<div class="score-item"><div class="sk">Seats</div><div class="sv">' + tool.seats + '</div></div>';
+  content += '</div></div>';
+  content += '<div class="score-section"><h3>📝 Details</h3>';
+  content += '<div class="score-item" style="margin-bottom:8px;"><div class="sk">Account</div><div class="sv">' + escapeHtml(tool.account || '-') + '</div></div>';
+  content += '<div class="score-item" style="margin-bottom:8px;"><div class="sk">Use Case</div><div class="sv">' + escapeHtml(tool.useCase || '-') + '</div></div>';
+  content += '<div class="score-item" style="margin-bottom:8px;"><div class="sk">Notes</div><div class="sv">' + escapeHtml(tool.notes || '-') + '</div></div>';
+  if (tool.renewal) {
+    content += '<div class="score-item"><div class="sk">Renewal</div><div class="sv">' + tool.renewal + ' (' + (renewalDays > 0 ? renewalDays + ' days left' : 'overdue') + ')</div></div>';
+  }
+  content += '</div>';
+  content += '<div class="score-section ai-context"><h3>🤖 AI Context</h3>';
+  content += '<p style="font-size:0.8rem;color:var(--text-dim);margin-bottom:10px;">Copy this context when asking an AI to help with this tool:</p>';
+  content += '<div style="background:rgba(0,0,0,0.3);padding:12px;border-radius:10px;font-size:0.78rem;line-height:1.6;font-family:monospace;">';
+  content += 'Tool: ' + escapeHtml(tool.name) + '<br>';
+  content += 'Platform: ' + tool.platform + ' | Network: ' + tool.network + '<br>';
+  content += 'License: ' + tool.license + ' (' + escapeHtml(tool.cost) + ')<br>';
+  if (tool.hasMCP) content += 'MCP: ' + tool.mcpExtensions.join(', ') + '<br>';
+  if (hw.name) content += 'Hardware: ' + escapeHtml(hw.name) + ' (' + escapeHtml(hw.cpu) + ', ' + escapeHtml(hw.ram) + 'GB RAM, ' + escapeHtml(hw.os) + ')<br>';
+  content += 'Account: ' + escapeHtml(tool.account) + '<br>';
+  content += 'Use case: ' + escapeHtml(tool.useCase);
+  content += '</div>';
+  if (tool.hasMCP && tool.mcpExtensions.length) {
+    content += '<div class="mcp-list">';
+    tool.mcpExtensions.forEach(function(m) { content += '<span class="mcp-chip">' + m + '</span>'; });
+    content += '</div>';
+  }
+  content += '</div>';
+  document.getElementById('scoreContent').innerHTML = content;
+  openModal('scoreModal');
+}
+
+function exportSingleCard() {
+  if (!currentScoreTool) return;
+  var payload = {
+    version: data.version,
+    exported_at: new Date().toISOString(),
+    hardware: data.hardware,
+    tool: currentScoreTool
+  };
+  var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'card_' + currentScoreTool.id + '.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Card exported!');
+}
+
+
+function setupSearch() {
+  var input = document.getElementById('searchInput');
+  var clear = document.getElementById('searchClear');
+  if (!input) return;
+
+  input.addEventListener('input', function(e) {
+    currentSearch = e.target.value.toLowerCase().trim();
+    if (clear) clear.classList.toggle('visible', currentSearch.length > 0);
+    render();
+  });
+
+  input.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+      input.value = '';
+      currentSearch = '';
+      if (clear) clear.classList.remove('visible');
+      render();
+      input.blur();
+    }
+  });
+
+  if (clear) {
+    clear.addEventListener('click', function() {
+      input.value = '';
+      currentSearch = '';
+      clear.classList.remove('visible');
+      render();
+      input.focus();
+    });
+  }
+}
+
+function setupStackBar() {
+  var bar = document.getElementById('stackBar');
+  if (!bar) return;
+  bar.addEventListener('click', function(e) {
+    var btn = e.target.closest('.stack-btn');
+    if (!btn) return;
+    var filter = btn.dataset.filter;
+    if (filter === 'accounts' || filter === 'decks') return;
+    if (filter === 'hardware') { openModal('hardwareModal'); loadHardware(); return; }
+    document.querySelectorAll('.stack-btn').forEach(function(b) { b.classList.remove('active'); });
+    btn.classList.add('active');
+    currentFilter = filter;
+    currentAccount = null;
+    currentDeck = null;
+    render();
+  });
+}
+
+function setupFilters() {
+  var filters = document.getElementById('filters');
+  if (!filters) return;
+  filters.addEventListener('click', function(e) {
+    var chip = e.target.closest('.chip');
+    if (!chip) return;
+    document.querySelectorAll('.chip').forEach(function(c) { c.classList.remove('active'); });
+    chip.classList.add('active');
+    currentTag = chip.dataset.tag;
+    render();
+  });
+}
+
+function loadHardware() {
+  var h = data.hardware || {};
+  document.getElementById('hwName').value = h.name || '';
+  document.getElementById('hwOS').value = h.os || '';
+  document.getElementById('hwCPU').value = h.cpu || '';
+  document.getElementById('hwRAM').value = h.ram || '';
+  document.getElementById('hwGPU').value = h.gpu || '';
+  document.getElementById('hwStorage').value = h.storage || '';
+}
+function saveHardware() {
+  data.hardware = {
+    name: document.getElementById('hwName').value,
+    os: document.getElementById('hwOS').value,
+    cpu: document.getElementById('hwCPU').value,
+    ram: document.getElementById('hwRAM').value,
+    gpu: document.getElementById('hwGPU').value,
+    storage: document.getElementById('hwStorage').value
+  };
+  persist();
+  closeModal('hardwareModal');
+  toast('Hardware profile saved!');
+}
+
+function openAddModal() {
+  document.getElementById('toolModalTitle').textContent = '🛠️ Add Tool';
+  document.getElementById('editId').value = '';
+  ['tName','tIcon','tAccount','tCost','tRenewal','tUseCase','tNotes','tMCP'].forEach(function(id) {
+    var el = document.getElementById(id);
+    if (el) el.value = '';
+  });
+  document.getElementById('tStack').value = 'core';
+  document.getElementById('tPlatform').value = 'pc';
+  document.getElementById('tNetwork').value = 'local';
+  document.getElementById('tLicense').value = 'free';
+  document.getElementById('tSeats').value = '1';
+  document.getElementById('tHasMCP').checked = false;
+  var g = document.getElementById('mcpGroup');
+  if (g) g.style.display = 'none';
+  openModal('toolModal');
+}
+
+function editTool(id) {
+  var tool = null;
+  data.tools.forEach(function(t) { if (t.id === id) tool = t; });
+  if (!tool) return;
+  document.getElementById('toolModalTitle').textContent = '✏️ Edit Tool';
+  document.getElementById('editId').value = id;
+  document.getElementById('tName').value = tool.name;
+  document.getElementById('tIcon').value = tool.icon;
+  document.getElementById('tStack').value = tool.stack;
+  document.getElementById('tPlatform').value = tool.platform;
+  document.getElementById('tNetwork').value = tool.network;
+  document.getElementById('tAccount').value = tool.account || '';
+  document.getElementById('tLicense').value = tool.license;
+  document.getElementById('tCost').value = tool.cost || '';
+  document.getElementById('tRenewal').value = tool.renewal || '';
+  document.getElementById('tSeats').value = tool.seats;
+  document.getElementById('tUseCase').value = tool.useCase || '';
+  document.getElementById('tNotes').value = tool.notes || '';
+  document.getElementById('tHasMCP').checked = tool.hasMCP;
+  document.getElementById('tMCP').value = tool.mcpExtensions ? tool.mcpExtensions.join(', ') : '';
+  var g = document.getElementById('mcpGroup');
+  if (g) g.style.display = tool.hasMCP ? 'block' : 'none';
+  openModal('toolModal');
+}
+
+function saveTool() {
+  var id = document.getElementById('editId').value;
+  var toolData = {
+    name: document.getElementById('tName').value || 'Untitled',
+    icon: document.getElementById('tIcon').value || '🔧',
+    iconColor: document.getElementById('tIcon').value ? '' : '#94a3b8',
+    stack: document.getElementById('tStack').value,
+    platform: document.getElementById('tPlatform').value,
+    network: document.getElementById('tNetwork').value,
+    account: document.getElementById('tAccount').value,
+    license: document.getElementById('tLicense').value,
+    cost: document.getElementById('tCost').value,
+    renewal: document.getElementById('tRenewal').value,
+    seats: parseInt(document.getElementById('tSeats').value) || 1,
+    useCase: document.getElementById('tUseCase').value,
+    notes: document.getElementById('tNotes').value,
+    hasMCP: document.getElementById('tHasMCP').checked,
+    mcpExtensions: document.getElementById('tHasMCP').checked
+      ? document.getElementById('tMCP').value.split(',').map(function(s) { return s.trim(); }).filter(Boolean)
+      : [],
+    status: 'active',
+    dateAdded: new Date().toISOString().split('T')[0]
+  };
+  if (id) {
+    var idx = -1;
+    data.tools.forEach(function(t, i) { if (t.id === id) idx = i; });
+    if (idx >= 0) {
+      data.tools[idx] = Object.assign({}, data.tools[idx], toolData);
+    }
+  } else {
+    var prefix = toolData.name.toLowerCase().replace(/[^a-z]/g,'').slice(0,4);
+    var user = (toolData.account.split('@')[0] || 'user').toLowerCase().slice(0,6);
+    var newId = 'sw-' + toolData.stack.slice(0,3) + '-' + prefix + '-' + user + '-' + toolData.platform;
+    data.tools.push(Object.assign({ id: newId }, toolData));
+  }
+  persist();
+  closeModal('toolModal');
+  render();
+  toast(id ? 'Tool updated!' : 'Tool added!');
+}
+
+function archiveTool(id) {
+  data.tools.forEach(function(t) {
+    if (t.id === id) {
+      t.status = t.status === 'archived' ? 'active' : 'archived';
+      toast(t.status === 'archived' ? 'Archived' : 'Restored');
+    }
+  });
+  persist();
+  render();
+}
+function deleteTool(id) {
+  if (!confirm('Delete this tool permanently?')) return;
+  data.tools = data.tools.filter(function(t) { return t.id !== id; });
+  persist();
+  render();
+  toast('Deleted');
+}
+
+function exportJSON() {
+  var payload = {
+    version: data.version,
+    exported_at: new Date().toISOString(),
+    owner_accounts: data.owner_accounts,
+    hardware: data.hardware,
+    tools: data.tools
+  };
+  var blob = new Blob([JSON.stringify(payload, null, 2)], {type:'application/json'});
+  var url = URL.createObjectURL(blob);
+  var a = document.createElement('a');
+  a.href = url;
+  a.download = 'software-arsenal-export.json';
+  a.click();
+  URL.revokeObjectURL(url);
+  toast('Full export downloaded!');
+}
+
+function importJSON(input) {
+  var file = input.files[0];
+  if (!file) return;
+  var reader = new FileReader();
+  reader.onload = function(e) {
+    try {
+      var parsed = JSON.parse(e.target.result);
+      if (parsed.tools) data.tools = parsed.tools;
+      if (parsed.hardware) data.hardware = parsed.hardware;
+      if (parsed.owner_accounts) data.owner_accounts = parsed.owner_accounts;
+      persist();
+      render();
+      toast('Import successful!');
+    } catch(err) { toast('Invalid JSON file'); }
+  };
+  reader.readAsText(file);
+  input.value = '';
+}
+
+/* Drag & Drop */
+function handleDragStart(e) {
+  dragSrc = this;
+  this.classList.add('dragging');
+  e.dataTransfer.effectAllowed = 'move';
+}
+function handleDragOver(e) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  return false;
+}
+function handleDrop(e) {
+  e.stopPropagation();
+  if (dragSrc !== this) {
+    var srcId = dragSrc.dataset.id;
+    var dstId = this.dataset.id;
+    var srcIdx = -1, dstIdx = -1;
+    data.tools.forEach(function(t, i) {
+      if (t.id === srcId) srcIdx = i;
+      if (t.id === dstId) dstIdx = i;
+    });
+    if (srcIdx >= 0 && dstIdx >= 0) {
+      var moved = data.tools.splice(srcIdx, 1)[0];
+      data.tools.splice(dstIdx, 0, moved);
+      persist();
+      render();
+    }
+  }
+  return false;
+}
+function handleDragEnd(e) {
+  this.classList.remove('dragging');
+}
+
+/* Modal helpers */
+function openModal(id) {
+  var el = document.getElementById(id);
+  if (el) el.classList.add('open');
+}
+function closeModal(id) {
+  var el = document.getElementById(id);
+  if (el) el.classList.remove('open');
+}
+
+/* Toast */
+function toast(msg) {
+  var t = document.getElementById('toast');
+  if (!t) return;
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(function() { t.classList.remove('show'); }, 2500);
+}
+
+/* Init when DOM ready */
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', init);
+} else {
+  init();
+}
+</script>
+</body>
+</html>
