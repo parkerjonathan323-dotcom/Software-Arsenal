@@ -19,7 +19,7 @@ A mobile-first, multi-account software inventory with flip cards, AI-ready expor
 5. Click **Create repository**
 6. On the repo page, click **Add file → Upload files**
 7. Drag both files into the upload area:
-   - `software_arsenal_v1.2.html`
+   - `software_arsenal_v1.2.1.html`
    - `manifest.json`
 8. Click **Commit changes**
 9. Go to **Settings → Pages** (left sidebar)
@@ -28,7 +28,7 @@ A mobile-first, multi-account software inventory with flip cards, AI-ready expor
 12. Click **Save**
 13. Wait 1–2 minutes, then visit:
     ```
-    https://YOURUSERNAME.github.io/software-arsenal/software_arsenal_v1.2.html
+    https://YOURUSERNAME.github.io/software-arsenal/software_arsenal_v1.2.1.html
     ```
 
 ## Add to Home Screen (Mobile)
@@ -40,7 +40,7 @@ A mobile-first, multi-account software inventory with flip cards, AI-ready expor
 ## File Structure
 ```
 software-arsenal/
-├── software_arsenal_v1.2.html   ← Main app
+├── software_arsenal_v1.2.1.html   ← Main app
 ├── manifest.json                ← PWA manifest
 └── README.md                    ← This file
 ```
